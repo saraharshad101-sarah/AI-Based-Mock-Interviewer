@@ -1,0 +1,24 @@
+{
+  "name": "ai-mock-interviewer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Generative AI-Based Mock Interviewer — adaptive interview questions, AI-evaluated answers, and improvement feedback.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "openai": "4.55.0",
+    "firebase": "10.12.5",
+    "uuid": "9.0.1"
+  },
+  "devDependencies": {
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.5"
+  }
+}
