@@ -36,17 +36,32 @@ export default function HomePage() {
     setLoading(true);
     setError(null);
     try {
+      console.log("STEP 1: Starting interview");
+
       let user = auth.currentUser;
+
       if (!user) {
+        console.log("STEP 2: Signing in as guest");
         const cred = await signInAsGuest();
         user = cred.user;
+        console.log("STEP 3: Guest sign-in complete", user.uid);
+      } else {
+        console.log("STEP 3: Already signed in", user.uid);
       }
+
+      console.log("STEP 4: Creating Firestore session");
+
       const sessionId = await createSession({
         userId: user.uid,
         role,
         seniority,
       });
+
+      console.log("STEP 5: Session created", sessionId);
+
       router.push(`/interview?session=${sessionId}&total=${questionCount}`);
+
+      console.log("STEP 6: Redirect requested");
     } catch (err) {
       console.error(err);
       setError("Couldn't start the interview. Check your Firebase setup and try again.");

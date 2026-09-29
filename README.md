@@ -19,8 +19,7 @@ evaluates each answer with an LLM, and produces a final feedback report.
 ## Tech stack
 
 - **Next.js 14** (App Router, Route Handlers for the API)
-- **OpenAI API** (`openai` SDK, default model `gpt-4o-mini` — override with
-  `OPENAI_MODEL`)
+- **Groq API** (default model `openai/gpt-oss-120b` — override with `GROQ_MODEL`)
 - **Firebase** (Firestore for session storage, Auth for anonymous/Google sign-in)
 
 ## Project structure
@@ -58,7 +57,7 @@ firestore.rules    Minimal security rules (signed-in users only)
    - Deploy `firestore.rules` (or paste them into the Firebase console under
      Firestore → Rules).
 
-3. **Get an OpenAI API key** from https://platform.openai.com/api-keys.
+3. **Get a Groq API key** from https://console.groq.com/keys.
 
 4. **Configure environment variables**
 
@@ -69,8 +68,8 @@ firestore.rules    Minimal security rules (signed-in users only)
    Fill in:
 
    ```
-   OPENAI_API_KEY=sk-...
-   OPENAI_MODEL=gpt-4o-mini
+    GROQ_API_KEY=...
+    GROQ_MODEL=openai/gpt-oss-120b
 
    NEXT_PUBLIC_FIREBASE_API_KEY=...
    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
