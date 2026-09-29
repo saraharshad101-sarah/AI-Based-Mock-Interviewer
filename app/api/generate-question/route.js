@@ -7,9 +7,9 @@ export async function POST(req) {
   try {
     const { role, seniority, history = [] } = await req.json();
 
-    if (!role || !seniority) {
+    if (!role || !seniority || !Array.isArray(history)) {
       return NextResponse.json(
-        { error: "role and seniority are required" },
+        { error: "role, seniority, and a valid history are required" },
         { status: 400 }
       );
     }
@@ -26,7 +26,7 @@ export async function POST(req) {
   } catch (err) {
     console.error("generate-question error:", err);
     return NextResponse.json(
-      { error: "Failed to generate question", details: err.message },
+      { error: "Failed to generate question" },
       { status: 500 }
     );
   }

@@ -7,9 +7,9 @@ export async function POST(req) {
   try {
     const { role, seniority, question, answer } = await req.json();
 
-    if (!role || !seniority || !question) {
+    if (!role || !seniority || !question || typeof answer !== "string" || !answer.trim()) {
       return NextResponse.json(
-        { error: "role, seniority, and question are required" },
+        { error: "role, seniority, question, and a non-empty answer are required" },
         { status: 400 }
       );
     }
@@ -19,7 +19,7 @@ export async function POST(req) {
   } catch (err) {
     console.error("evaluate-answer error:", err);
     return NextResponse.json(
-      { error: "Failed to evaluate answer", details: err.message },
+      { error: "Failed to evaluate answer" },
       { status: 500 }
     );
   }

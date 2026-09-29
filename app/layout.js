@@ -1,4 +1,5 @@
 import "./globals.css";
+import Link from "next/link";
 
 export const metadata = {
   title: "AI Mock Interviewer",
@@ -11,12 +12,14 @@ export default function RootLayout({ children }) {
       <body>
         <div className="app-shell">
           <header className="app-header">
-            <span className="logo-dot" />
-            <span className="app-title">AI Mock Interviewer</span>
+            <Link className="brand-link" href="/">
+              <span className="logo-mark" aria-hidden="true">MI</span>
+              <span className="app-title">AI Mock Interviewer</span>
+            </Link>
           </header>
           <main>{children}</main>
           <footer className="app-footer">
-            Powered by OpenAI &middot; Sessions saved with Firebase
+            AI feedback by Groq &middot; Sessions saved with Firebase
           </footer>
         </div>
       </body>

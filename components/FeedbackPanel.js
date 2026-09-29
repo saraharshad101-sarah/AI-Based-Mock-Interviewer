@@ -2,9 +2,11 @@ export default function FeedbackPanel({ score, feedback, strengths, improvements
   return (
     <div className="stack" style={{ gap: 14 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-        <span className="score-pill">{score}</span>
+        <span className="score-pill feedback-score" aria-label={`Answer score ${score} out of 10`}>
+          {score}/10
+        </span>
         <div>
-          <strong>Score for this answer</strong>
+          <strong>Answer evaluation</strong>
           <p className="subtitle" style={{ margin: 0 }}>{feedback}</p>
         </div>
       </div>
