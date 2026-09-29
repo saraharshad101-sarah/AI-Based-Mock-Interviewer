@@ -1,75 +1,63 @@
 # AI Mock Interviewer
 
-A generative-AI mock interview platform: it asks adaptive interview questions,
-evaluates each answer with an LLM, and produces a final feedback report.
+A portfolio-ready interview practice app built with Next.js, Firebase, and Groq. Choose a role, experience level, and interview length, then answer or skip adaptive questions and receive a detailed assessment.
 
 ## Features
 
-- **Adaptive questions** — the next question's difficulty and type (behavioral,
-  technical, problem-solving) is chosen based on how well the last 1–2 answers
-  scored, via `lib/openai.js` → `generateNextQuestion`.
-- **AI-evaluated answers** — every answer is scored 0–10 with strengths and
-  concrete improvement points (`evaluateAnswer`).
-- **Final feedback report** — an overall score, summary, top strengths,
-  priority improvements, and recommended next steps once the session ends
-  (`generateFinalFeedback`).
-- **Session persistence** — each interview is stored in Firestore (`lib/session.js`)
-  under `interviews/{sessionId}`, so a session survives a page refresh.
+- Choose a target role, seniority, and 3, 5, or 7 questions.
+- Generate adaptive behavioral, technical, and problem-solving questions.
+- Submit answers for a 0–10 evaluation with feedback, strengths, and improvements.
+- Skip questions without treating them as failed answers.
+- Resume an in-progress interview after a refresh; session history is stored in Firestore.
+- Review an overall score, answered/skipped counts, recommendations, and question-by-question feedback.
 
-## Tech stack
+The overall score is calculated from evaluated answers only: the mean of their scores, rounded to the nearest integer from 0 to 10. Skipped questions do not contribute to the overall or adaptive difficulty score. If no answers were evaluated, the report shows **Not enough data** rather than a zero score.
 
-- **Next.js 14** (App Router, Route Handlers for the API)
-- **Groq API** (default model `openai/gpt-oss-120b` — override with `GROQ_MODEL`)
-- **Firebase** (Firestore for session storage, Auth for anonymous/Google sign-in)
+## Stack
+
+- Next.js 14 App Router and Route Handlers
+- Groq chat completions API (default model: `openai/gpt-oss-120b`; configurable with `GROQ_MODEL`)
+- Firebase Authentication with anonymous sign-in and Cloud Firestore
 
 ## Project structure
 
-```
+```text
 app/
-  page.js                        Setup screen (role, seniority, question count)
-  interview/page.js              Main interview loop (ask → answer → evaluate → repeat)
-  results/page.js                Final report + question-by-question breakdown
-  api/generate-question/route.js POST → next adaptive question
-  api/evaluate-answer/route.js   POST → score + feedback for one answer
-  api/session/final-feedback/route.js  POST → end-of-interview report
+  page.js                              Interview setup
+  interview/page.js                    Interview flow and session recovery
+  results/page.js                      Final assessment and answer breakdown
+  api/generate-question/route.js       Adaptive question endpoint
+  api/evaluate-answer/route.js         Answer evaluation endpoint
+  api/session/final-feedback/route.js  Final report endpoint
 components/
-  QuestionCard.js, AnswerInput.js, FeedbackPanel.js, ProgressBar.js
+  AnswerInput.js
+  FeedbackPanel.js
+  ProgressBar.js
+  QuestionCard.js
 lib/
-  openai.js       Server-side OpenAI calls (never imported client-side)
-  firebase.js     Firebase app/auth/firestore init
-  session.js      Firestore read/write helpers for interview sessions
-firestore.rules    Minimal security rules (signed-in users only)
+  openai.js                            Server-side Groq API integration
+  firebase.js                          Firebase app, auth, and Firestore setup
+  session.js                           Firestore session helpers
+firestore.rules                        Firestore access rules
 ```
 
 ## Setup
 
-1. **Install dependencies**
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. **Create a Firebase project**
-   - Enable **Firestore** (production or test mode) and **Authentication**
-     (enable the *Anonymous* provider, and *Google* if you want that sign-in
-     option too).
-   - Copy the web app config values into `.env.local` (see below).
-   - Deploy `firestore.rules` (or paste them into the Firebase console under
-     Firestore → Rules).
+2. Create a Firebase project. Enable **Cloud Firestore** and **Authentication**, then enable the **Anonymous** sign-in provider. Copy the Firebase web app configuration values from Project settings.
 
-3. **Get a Groq API key** from https://console.groq.com/keys.
+3. Create a Groq API key at https://console.groq.com/keys.
 
-4. **Configure environment variables**
+4. Copy `.env.local.example` to `.env.local` and fill in the values:
 
-   ```bash
-   cp .env.local.example .env.local
-   ```
-
-   Fill in:
-
-   ```
-    GROQ_API_KEY=...
-    GROQ_MODEL=openai/gpt-oss-120b
+   ```env
+   GROQ_API_KEY=your-groq-api-key
+   GROQ_MODEL=openai/gpt-oss-120b
 
    NEXT_PUBLIC_FIREBASE_API_KEY=...
    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
@@ -79,30 +67,26 @@ firestore.rules    Minimal security rules (signed-in users only)
    NEXT_PUBLIC_FIREBASE_APP_ID=...
    ```
 
-5. **Run it**
+   `GROQ_API_KEY` is used only by server-side route handlers. Do not rename it with a `NEXT_PUBLIC_` prefix or commit `.env.local`.
+
+5. Deploy `firestore.rules` from the Firebase console or Firebase CLI, then start the development server:
 
    ```bash
    npm run dev
    ```
 
-   Open http://localhost:3000.
+   Visit http://localhost:3000.
 
-## How the adaptive logic works
+## Firestore security
 
-After each answer, `evaluateAnswer` returns a 0–10 score. When asking for the
-next question, `generateNextQuestion` looks at the average score of the last
-two answers:
+The provided rules require an authenticated user for reads, creates, and updates, and disallow deletes. They currently do **not** verify that a user owns a specific interview document. Tighten the rules with document ownership checks before using this project with sensitive or production data.
 
-- **≥ 8** → raise difficulty, push deeper
-- **5–7** → hold difficulty steady, small increase
-- **< 5** → ease off, ask something more foundational
+## Verification
 
-This keeps the interview appropriately challenging instead of asking a fixed
-question list.
+Run a production build with:
 
-## Extending this project
+```bash
+npm run build
+```
 
-- Add a timer per question for a more realistic interview feel.
-- Support voice input (Web Speech API) instead of typing answers.
-- Let the candidate paste a job description and tailor questions to it.
-- Add a history/dashboard page listing all past sessions for a signed-in user.
+The AI requests run through Next.js server routes; the Groq key is not sent to browser code.
